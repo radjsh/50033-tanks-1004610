@@ -42,6 +42,22 @@ public class TankHealth : MonoBehaviour
         if (m_CurrentHealth <= 0f && !m_Dead) OnDeath();
     }
 
+    public void Heal(){
+        if (m_CurrentHealth <= 80f){
+            m_CurrentHealth += 20f;
+        } else {
+            m_CurrentHealth = 100f;
+        }
+        SetHealthUI();
+    }
+
+    public void Explode(){
+        m_CurrentHealth -= 20;        
+
+        SetHealthUI();
+        if (m_CurrentHealth <= 0f && !m_Dead) OnDeath();
+    }
+
 
     private void SetHealthUI()
     {

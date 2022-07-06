@@ -88,6 +88,11 @@ public class TankMovement : MonoBehaviour
         m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
     }
 
+    // public void OnBombImpact(){
+    //     Vector3 impulse = new Vector3(25.0f, 0.0f, 0.0f);
+    //     m_Rigidbody.AddForce(impulse, ForceMode.Impulse);
+    // }
+
 
     private void Turn()
     {

@@ -13,7 +13,6 @@ public class TankManager
     [HideInInspector] public GameObject m_Instance;
     [HideInInspector] public int m_Wins;
 
-
     private TankMovement m_Movement;
     private TankShooting m_Shooting;
     private GameObject m_CanvasGameObject;
@@ -29,6 +28,8 @@ public class TankManager
 
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
         m_ColoredPlayerText = $"<color=#{ColorUtility.ToHtmlStringRGB(m_PlayerColor)}>PLAYER {m_PlayerNumber}</color>";
+
+        
 
         MeshRenderer[] renderers = m_Instance.GetComponentsInChildren<MeshRenderer>();
 
@@ -50,6 +51,8 @@ public class TankManager
         MeshRenderer[] renderers = m_Instance.GetComponentsInChildren<MeshRenderer>();
 
         for (int i = 0; i < renderers.Length; i++) renderers[i].material.color = m_PlayerColor;
+
+
     }
 
     public void DisableControl()

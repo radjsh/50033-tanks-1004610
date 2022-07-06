@@ -5,10 +5,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
 public class GameManager : MonoBehaviour
 {
-    public int m_NumRoundsToWin = 5;            
+    public int m_NumRoundsToWin = 2;            
     public float m_StartDelay = 3f;             
     public float m_EndDelay = 3f;               
     public CameraControl m_CameraControl;       
@@ -22,15 +21,28 @@ public class GameManager : MonoBehaviour
     private WaitForSeconds m_EndWait;           
     private TankManager m_RoundWinner;          
     private TankManager m_GameWinner;           
+    private TankManager m_CurrentWinner;
+    public Transform[] spawnPoints;
 
+    // Bomb Related
+    public GameObject bomb1;
+    public GameObject bomb2;
+    public GameObject bomb3;
 
     private void Start()
     {
         m_StartWait = new WaitForSeconds(m_StartDelay);
-        m_EndWait = new WaitForSeconds(m_EndDelay);
+        m_EndWait = new WaitForSeconds(m_EndDelay); 
 
+        SetRandomSP();
         SpawnAllTanks();
         SetCameraTargets();
+
+        for (int i = 0; i < m_Tanks.Length; i++)
+        {
+            GameObject crown = m_Tanks[i].m_Instance.transform.GetChild(0).GetChild(0).gameObject;
+            crown.SetActive(false);
+        }        
 
         StartCoroutine(GameLoop());
     }
@@ -63,6 +75,20 @@ public class GameManager : MonoBehaviour
         m_CameraControl.m_Targets = targets;
     }
 
+    private void AddCrown(){
+        GameObject crown = m_CurrentWinner.m_Instance.transform.GetChild(0).GetChild(0).gameObject;
+        crown.SetActive(true);
+
+        for (int i = 1; i < m_Tanks.Length; i++)
+        {
+            if (m_CurrentWinner != m_Tanks[i]){
+                GameObject loser_crown = m_Tanks[i].m_Instance.transform.GetChild(0).GetChild(0).gameObject;
+                loser_crown.SetActive(false);
+            }
+        }
+
+    }
+
 
     private IEnumerator GameLoop()
     {
@@ -79,6 +105,11 @@ public class GameManager : MonoBehaviour
     {
         ResetAllTanks();
         DisableTankControl();
+        if (m_CurrentWinner != null){
+            AddCrown();
+        }
+
+        SetBombs();
 
         m_CameraControl.SetStartPositionAndSize();
 
@@ -108,10 +139,14 @@ public class GameManager : MonoBehaviour
         m_RoundWinner = GetRoundWinner();
         if (m_RoundWinner != null) m_RoundWinner.m_Wins++;
 
+        m_CurrentWinner = GetCurrentWinner();
+
         m_GameWinner = GetGameWinner();
 
         string message = EndMessage();
         m_MessageText.text = message;
+
+        SetRandomSP();
 
         yield return m_EndWait;
     }
@@ -140,6 +175,34 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
+    private TankManager GetCurrentWinner()
+    {
+        TankManager currentWinner = m_Tanks[0];
+        bool isDraw = false;
+
+        for (int i = 1; i < m_Tanks.Length; i++)
+        {
+            if (m_Tanks[i].m_Wins > currentWinner.m_Wins){
+                currentWinner = m_Tanks[i];
+                isDraw = false;
+            }
+            else if (m_Tanks[i].m_Wins == currentWinner.m_Wins){
+                isDraw = true;
+            }
+        } 
+
+        if (!isDraw){
+            return currentWinner;
+        }
+
+        if (isDraw){
+            GameObject crown = m_CurrentWinner.m_Instance.transform.GetChild(0).GetChild(0).gameObject;
+            crown.SetActive(false);
+        }
+
+        return null;
+    }
+
     private TankManager GetGameWinner()
     {
         for (int i = 0; i < m_Tanks.Length; i++)
@@ -149,6 +212,48 @@ public class GameManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void SetRandomSP(){
+        int group = Random.Range(0, 4);
+        switch (group){
+            case 0:
+                int[] SPList = {0, 1, 2};
+                m_Tanks[0].m_SpawnPoint = spawnPoints[0];
+                m_Tanks[1].m_SpawnPoint = spawnPoints[1];
+                m_Tanks[2].m_SpawnPoint = spawnPoints[2];
+                break;
+            case 1:
+                m_Tanks[0].m_SpawnPoint = spawnPoints[2];
+                m_Tanks[1].m_SpawnPoint = spawnPoints[3];
+                m_Tanks[2].m_SpawnPoint = spawnPoints[4];
+                break;
+            case 2:
+                m_Tanks[0].m_SpawnPoint = spawnPoints[5];
+                m_Tanks[1].m_SpawnPoint = spawnPoints[1];
+                m_Tanks[2].m_SpawnPoint = spawnPoints[0];
+                break;
+            case 3:
+                m_Tanks[0].m_SpawnPoint = spawnPoints[1];
+                m_Tanks[1].m_SpawnPoint = spawnPoints[5];
+                m_Tanks[2].m_SpawnPoint = spawnPoints[6];
+                break;                                
+        }
+    }
+
+    void SetBombs(){
+
+        if (m_RoundNumber == 0) {
+            bomb1.SetActive(false);
+            bomb2.SetActive(false);
+            bomb3.SetActive(false);
+        } else if (m_RoundNumber == 1){
+            bomb1.SetActive(true);
+        } else if (m_RoundNumber == 2){
+            bomb2.SetActive(true);
+        } else if (m_RoundNumber == 3){
+            bomb3.SetActive(true);
+        }
     }
 
 
